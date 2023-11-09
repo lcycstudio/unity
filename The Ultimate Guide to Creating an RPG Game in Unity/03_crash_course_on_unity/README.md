@@ -511,13 +511,13 @@ Player doesn't have any animator. The child component, Animator, has the animato
   - Downward arrow line
 
     - Inspector window
-      - Has Exit Time: unchecked
+      - Has Exit Time: uncheck
       - Settings
         - Transition Duration: 0
 
   - Upward arrow line
     - Inspector window
-      - Has Exit Time: unchecked
+      - Has Exit Time: uncheck
         - Settings
         - Transition Duration: 0
 
@@ -536,13 +536,300 @@ Alt + Arrow Down Key
 
 ### Flip character
 
+```cs
+...
+private int facingDir = 1;
+private bool facingRight = true;
+...
+
+void Update()
+{
+    ...
+    FlipController();
+    ...
+}
+
+...
+
+private void Flip()
+{
+    facingDir = facingDir * -1;
+    facingRight = !facingRight;
+    transform.Rotate(0, 180, 0);
+}
+
+private void FlipController()
+{
+    if (rb.velocity.x > 0 && !facingRight) Flip();
+
+    else if (rb.velocity.x < 0 && facingRight) Flip();
+}
+```
+
 ### 2D Collision Detection
+
+```cs
+[Header("Collision Info")]
+[SerializeField] private float groundCheckDistance;
+[SerializeField] private LayerMask whatIsGround;
+private bool isGrounded;
+
+void Update()
+{
+    ...
+    CollisionChecks();
+    ...
+}
+
+private void CollisionChecks()
+{
+    isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+}
+```
+
+- Player
+
+  - Inspector window
+    - Player (Script)
+      - Ground Check Distance: 1.4
+    - Layer
+      - Add Layer
+        - User Layer 3: Ground
+
+- Select Platform & Platform (1)
+
+  - Inspector window
+    - Layer: Ground
+
+- Player
+  - Inspector
+    - Player (Script)
+      - What Is Ground: Ground
 
 ### Jump animation
 
+#### Player Jump
+
+- Hierarchy Window
+  - Animator
+    - Animation Window
+      - Create New Clip
+        - Animations Folder: playerJump.anim
+          - Project window
+            - Graphics
+              - Warrior_Sheet-Effect: 41, 42, 43
+                - Drag them to Animation window
+                  - Samples: 10
+- Animator window
+  - Any State
+    - Make transitions to playerJump
+      - "+"
+        - Bool: isGrounded
+          - Select downward arrow line
+            - Inspector
+              - Conditions
+                - List is Empty: "+"
+                  - isGrounded: false
+              - Settings
+                - Transition Duration: 0
+                - Can Transition To Self: uncheck
+- Animator window
+  - Select playerJump
+    - Make transitions to playerIdle
+      - Select arrow line
+        - Inspector
+          - Conditions
+            - isGrounded: true
+          - Has Exit Time: uncheck
+          - Settings
+            - Transition Duration: 0
+
+#### Player Fall
+
+- Hierarchy window
+
+  - Animator
+    - Animation window
+      - Create New Clip
+        - Animations folder: playerFall.anim
+          - Project window
+            - Graphics
+              - Warrior_Sheet-Effect: 46, 47, 48
+                - Drag them to Animation window
+                  - Samples: 10
+
+- Animator window
+  - Right click
+    - Create State
+      - From New Blend Tree
+        - Inspector
+          - Name: Jump/Fall
+            - Animator window:
+              - Double click Jump/Fall
+                - Inspector
+                  - Motion: "+"
+                    - Add Motion Field
+                    - Add Motion Field
+                  - Automate Threshold: uncheck
+                  - playerFall
+                    - Thres: -1
+              - Parameters:
+                - Rename "Blend" to "yVelocity"
+    - Select Blend Tree
+      - Inspector window
+        - Drag "Blend Tree" Tab upward
+
+```cs
+private void AnimatorControllers()
+{
+    bool isMoving = rb.velocity.x != 0;
+
+    anim.SetFloat("yVelocity", rb.velocity.y);
+    anim.SetBool("isMoving", isMoving);
+    anim.SetBool("isGrounded", isGrounded);
+}
+```
+
+![Blend Tree](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/blend_tree.png)
+
+- Animator window
+  - Delete `playerJump` and `playerFall` states
+  - Select `Any State`
+    - Make transition to `Jump/Fall`
+      - Select arrow line
+        - Inspector
+          - Conditions: "+"
+            - isGrounded: false
+          - Settings
+            - Transition Duration: 0
+            - Can Transition To Self: uncheck
+  - Select `Jump/Fall`
+    - Make transition to `playerIdle`
+      - Select arrow line
+        - Inspector
+          - Conditions: "+"
+            - isGrounded: true
+          - Settings:
+            - Has Exit Time: uncheck
+            - Transition Duration: 0
+
+![Jump/Fall](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/jump_fall.png)
+
+- Player
+  - RigidBody 2D
+    - Gravity: 3.5
+  - Player (Script)
+    - Jump Force: 12
+    - Move Speed: 6
+
 ### Sticky walls
 
+- Project window
+
+  - Right click
+    - Create
+      - 2D
+        - Physics Material 2D
+          - Name: SlippyMat
+          - Inspector
+            - Friction: 0
+    - Create
+      - Folder
+        - Materials
+          - Drag SlippyMat to Materials folder
+
+- Hierarchy window
+  - Player
+    - Inspector window
+      - Rigidbody 2D
+        - Material: SlippyMat
+
 ### Dash and timers
+
+#### Time.DeltaTime
+
+It shows you time that passed between frames and we can use it as a timer for cooldown or something else.
+
+```cs
+[Header("Dash Info")]
+[SerializeField] private float dashSpeed;
+[SerializeField] private float dashDuration;
+[SerializeField] private float dashTime;
+...
+private void Movement()
+{
+    if (dashTime > 0)
+    {
+        rb.velocity = new Vector2(xInput * dashSpeed, 0);
+    }
+    else
+    {
+        rb.velocity = new Vector2(xInput * moveSpeed, rb.velocity.y);
+    }
+}
+```
+
+- Hierarchy window
+  - Player
+    - Inspector
+      - Player (Scripts)
+        - Dash Info
+          - Dash Speed: 15
+          - Dash Duration: 0.5
+  - Main Camera
+    - Inspector
+      - Camera
+        - Size: 8
+
+#### Dash Animation
+
+- Hierarchy window
+
+  - Animator
+    - Animation window
+      - Create New Clip
+        - Animations folder: playerDash
+          - Project window
+            - Graphics folder
+              - Warrior_Sheet-Effect: 69 - 72
+                - Drag them to Animation window
+                - Samples: 10
+
+- Animator window
+  - Make transition from `Any State` to `playerDash`
+    - "+"
+      - Bool: isDashing
+    - Select arrow line
+      - Conditions:
+        - isDashing: true
+      - Settings:
+        - Transition Duration: 0
+        - Can Transition To Self: uncheck
+  - Make transtion from `playerDash` to `playerIdle`
+    - Select arrow line
+      - Conditions:
+        - isDashing: false
+      - Settings:
+        - Transition Duration: 0
+        - Has Exit Time: uncheck
+
+![Player Dash](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/player_dash.png)
+
+```cs
+private void AnimatorControllers()
+{
+    ...
+    anim.SetBool("isDashing", dashTime > 0);
+}
+```
+
+- Hierarchy
+  - Player
+    - Player (Script)
+      - Move Speed: 6
+      - Jump Force: 12
+      - Dash Speed: 15
+      - Dash Duration: 0.25
 
 ### Dash cooldown
 
