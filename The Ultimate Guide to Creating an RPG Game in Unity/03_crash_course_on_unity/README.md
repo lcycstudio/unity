@@ -61,7 +61,7 @@
 - `Window`
   - Layouts: "2 by 3"
 
-![Layout](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/layout.png)
+![Layout](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/layout.png)
 
 #### Square
 
@@ -70,7 +70,7 @@
     - Sprites
       - Square
 
-![Square](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/square.png)
+![Square](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/square.png)
 
 #### Windows
 
@@ -131,7 +131,7 @@
 
 Drag and drop "Warrior_Sheet-Effect.png" to it
 
-[Warrior Sheet Effect](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/Warrior_Sheet-Effect.png)
+[Warrior Sheet Effect](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/Warrior_Sheet-Effect.png)
 
 #### C# Script
 
@@ -169,19 +169,370 @@ Drag and drop "Warrior_Sheet-Effect.png" to it
       - Select "My Material"
     - Linear Drag: 0.5
 
-![Colliders and Rigibody](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/colliders_and_rigibody.png)
+![Colliders and Rigibody](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/colliders_and_rigibody.png)
 
 ### Input and First script
 
+There are an old input system and a new input system.
+
+#### Script
+
+- Project Window
+  - Drag Player script to Player object
+    - Edit the script
+
+![Visual Studio 2022 - Player Script](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/visual_studio_2022.png)
+
+```cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NewBehaviourScript : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+        Debug.Log("Start was called.");
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Debug.Log("Update is called.");
+    }
+}
+```
+
+#### Console Window
+
+- Window
+  - General
+    - Console
+      - `Collapse`
+
+#### Input Keys
+
+- GetKey
+- GetKeyDown
+- GetKeyUp
+
+```cs
+void Update()
+{
+    if (Input.GetKey(KeyCode.Space))
+    {
+        Debug.Log("You holding the space button!");
+    }
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+        Debug.Log("You pressed space button");
+    }
+    if (Input.GetKeyUp(KeyCode.Space))
+    {
+        Debug.Log("You released space button!");
+    }
+}
+```
+
+![Input Keys](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/input_keys.png)
+
+Unity Key Codes (https://docs.unity3d.com/ScriptReference/KeyCode.html)
+
+#### Input Buttons
+
+```cs
+if (Input.GetButtonDown("Jump"))
+{
+    Debug.Log("Jump");
+}
+```
+
+#### Jump Button
+
+- Edit
+  - Project Settings
+    - Input Manager
+      - Axes
+        - Jump
+          - Name: Jump
+          - Positive Button: space
+
+#### Axes
+
+```cs
+void Update()
+{
+    // decimal pixel movement
+    Debug.Log(Input.GetAxis("Horizontal"));
+
+    // integer pixel movement
+    Debug.Log(Input.GetAxisRaw("Horizontal"));
+}
+```
+
+#### Input Variable xInput
+
+```cs
+public class Player : MonoBehaviour
+{
+    public float xInput;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        Debug.Log("Start was called.");
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        xInput = Input.GetAxisRaw("Horizontal");
+        Debug.Log(xInput);
+    }
+}
+```
+
+![GetAxisRaw](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/getAxisRaw.png)
+
 ### Move and Jump
 
-### Serializefield
+#### Public and Private
+
+**Public**
+
+- you can see the variable / value in the inspector
+
+**Private**
+
+- you cannot see the variable / value in the inspector
+- you cannot access this variable / value from another script
+
+#### Create RigidBody2D variable
+
+```cs
+public Rigidbody2D rb;
+```
+
+- Inspector
+  - Drag the RigidBody 2D to Rb
+  - Variable `rb` is the same as the RigidBody 2D in the Inspector
+
+```cs
+void Start()
+{
+    // Push our ball to the right side
+    rb.velocity = new Vector2(5, rb.velocity.y);
+    Debug.Log("Start was called.");
+}
+```
+
+![RigidBody2D](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/RigidBody2D.png)
+
+### SerializeField
+
+SerializeField is one that makes variables accessible to Unity.
+
+```cs
+private Rigidbody2D rb;
+
+[SerializeField] private float moveSpeed;
+[SerializeField] private float jumpForce;
+
+
+public float xInput;
+
+// Start is called before the first frame update
+void Start()
+{
+    rb = GetComponent<Rigidbody2D>();
+}
+```
+
+The above `rb` still uses RigidBody2D but it is shown in the debug mode of the Inspector window, not the normal mode.
+
+![Debug Mode](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/debug_mode.png)
 
 ### Sprite sheet
 
-### Animator
+#### Cutting sprite sheet
+
+- Project window
+  - Warrior_Sheet-Effect.png
+    - Inspector window
+      - Sprite Mode: Multiple
+      - `Sprite Editor`
+
+![Sprite Inspector](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/sprite_inspector.png)
+
+#### Sprite Editor
+
+![Sprite Editor](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/sprite_editor.png)
+
+- Slice Editor
+  - Slice
+    - Type: Grid By Cell Size
+    - Pixel Size
+      - X: 69
+      - Y: 44
+    - Slice
+    - Apply
+
+![Sliced Sprite Sheet](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/sliced_sprite_sheet.png)
+
+- Drag sprite sheet to Scene window
+
+  - Select Warrior_Sheet-Effect.png
+    - Inspector Window
+      - Sprite Mode
+        - Pixels Per Unit: 16
+        - Apply
+      - Advanced
+        - Filter Mode: Point (no filter)
+        - Compression: None
+
+- Delete object "Warrior_Sheet-Effect_0"
+- Drag sprite "Warrior_Sheet-Effect_0" to Player Sprite Renderer
+- Sprite Renderer
+  - Sprite: Warrior_Sheet-Effect_0
+  - Color: Transparent
+
+#### Center Point of Sprite Sheet
+
+- Hierarchy Window
+- Right Click "Player"
+  - Create Empty
+    - Name: Animator
+- Player
+  - Sprite Renderer
+    - Remove Component
+- Animator
+  - Add Component
+    - Sprite Renderer
+      - Drag Warrior_Sheet-Effect_0 to Sprite
+- Animator (Child Object)
+  - Transform
+    - X: 0.4
+- Player
+  - Scene Window
+    - Choose "Pivot"
+  - Circle Collider 2D
+    - Remove Component
+  - Add Component
+    - Capsule Collider 2D
+      - Edit Collider
+  - RigidBody 2D
+    - Costraints
+      - Freeze Rotation: Z
+    - Collision Detection: Continuous
+    - Interpolate: Interpolate
+
+![Warrior_Sheet-Effect_0](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/Warrior_Sheet-Effect_0.png)
+
+### Idle Animator
+
+- Window
+  - Animation
+    - Animation
+  - Animation
+    - Animator
+
+Animator takes a number of sprites and place them in a certain order to make it an animation.
+
+- Project window
+  - Right click
+    - Create
+      - Animator Controller
+      - Name: "Player_AC"
+- Drag Player_AC to Animator
+- Select Animation Window
+  - Create
+    - playerIdle.anim
+- Project window
+  - Drag the first 6 sprite sheets of Idle to Animation window
+  - Show Sample Rate
+    - Samples: 10
+
+![Animation Window](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/animation_window.png)
+
+#### Move Animator
+
+- Hierarchy window
+  - Animator
+    - Animation window
+      - playerIdle
+        - Create New Clip
+          - playerMove.anim
+      - playerMove
+        - Project window
+          - Drag move spirtes to Animation window
+          - Samples: 10
+- Play
+
+![Animator Window](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/animator_window.png)
+
+#### Transition Move
+
+- Animator Window
+  - Parameters
+    - "+"
+      - Bool
+        - "isMoving"
+  - Base Layer
+    - Right click "playerIdle"
+      - Make transition
+        - playerMove
+    - Select the arrow line
+      - Inspector window
+        - Conditions
+          - "+"
+            - isMoving: true
+    - Right click "playerMove"
+      - Make transition
+        - playerIdle
+    - Select the upward arrow line
+      - Inspector window
+        - Conditions
+          - "+"
+            - isMoving: false
+- Player
+  - Inspector window
+    - Player (Script)
+      - Open the script
+      - `public Animator anim;`
+  - Drag Animator to "Anim" under Player (Script)
+
+Player doesn't have any animator. The child component, Animator, has the animator.
+
+#### Smooth Transition
+
+- Animator window
+
+  - Downward arrow line
+
+    - Inspector window
+      - Has Exit Time: unchecked
+      - Settings
+        - Transition Duration: 0
+
+  - Upward arrow line
+    - Inspector window
+      - Has Exit Time: unchecked
+        - Settings
+        - Transition Duration: 0
+
+![Smooth Transition](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/smoot_transition.png)
 
 ### Clean up
+
+Alt + Arrow Down Key
+
+- Select `rb.velocity = new Vector2(rb.velocity.x, jumpForce);`
+- Alt + Enter
+- Extract Method
+- Enter
+
+![Clean Up](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/clean_up.png)
 
 ### Flip character
 
