@@ -833,9 +833,209 @@ private void AnimatorControllers()
 
 ### Dash cooldown
 
+```cs
+[SerializeField] private float dashCooldown;
+private float dashTime;
+private float dashCooldownTimer;
+...
+void Update()
+{
+    ...
+    dashCooldownTimer -= Time.deltaTime;
+
+    if  (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer > 0)
+    {
+        dashCooldownTimer = dashCooldown;
+        dashTime = dashDuration;
+    }
+    ...
+}
+```
+
+- Hierarchy
+  - Player
+    - Inspector
+      - Dash Cooldown: 1.4
+
 ### Attack animation
 
+#### Animation List
+
+- move
+- jump
+- dash
+- attack: attack1, attack2, attack3
+- wall slide
+- wall jump
+- sword throwing
+
+#### Attack Animation
+
+- Hirarchy
+
+  - Animator
+    - Animation window
+      - Create New Clip
+        - Animations folder
+          - playerAttack1.anim
+          - playerAttack2.anim
+          - playerAttack3.anim
+    - playerAttack1
+      - Project window
+        - Graphics folder
+          - playerAttack1
+            - Warrior sprite sheets: 15 - 21
+          - playerAttack2
+            - Warrior sprite sheets: 22 - 25
+          - playerAttack3
+            - Warrior sprite sheets: 77 - 83
+
+- Animator Window
+
+  - Make transition from `Any State` to `playerAttack1`, `playerAttack2`, `playerAttack3`
+  - Add Parameters
+    - Bool: isAttacking
+    - Int: comboCounter
+  - Select all three arrow lines
+    - Inspector
+      - Conditions
+        - isGrounded: true
+        - isAttacking: true
+      - Settings
+        - Transition Duration: 0
+        - Can Transition To Self: uncheck
+  - Select the `playerAttack1` arrow line
+    - Inspector
+      - Conditions
+        - comboCounter: Equals 0
+  - Select the `playerAttack2` arrow line
+    - Inspector
+      - Conditions
+        - comboCounter: Equals 1
+  - Select the `playerAttack3` arrow line
+    - Inspector
+      - Conditions
+        - comboCounter: Equals 2
+
+- Animator window
+  - Make transition from `playerAttack1`, `playerAttack2`, `playerAttack3` to `playerIdle`
+  - Select arrow lines
+    - Inspector
+      - Settings
+        - Exit Time: 1
+        - Transition Duration: 0
+
+![Player Attacks](/The%20Ultimate%20Guide%20to%20Creating%20an%20RPG%20Game%20in%20Unity/03_crash_course_on_unity/images/player_attacks.png)
+
+```cs
+...
+[Header("Attack Info")]
+private bool isAttacking;
+private int comboCounter;
+...
+private void CheckInput()
+{
+    ...
+    if (Input.GetKeyDown(KeyCode.Mouse0))
+    {
+        isAttacking = true;
+    }
+    ...
+}
+```
+
+#### Attack Over Function
+
+- Hierarchy window
+  - Animator
+    - Animation window
+      - playerAttack1
+        - Select the last sprite at 0:6
+          - Click `Add Event`
+            - Inspector
+              - Function: (No Function Selected)
+              - We want to add a function to do `isAttacking = false`
+              - Create a function in Player.cs
+              - Create another script "PlayerAnimEvents.cs"
+                - Drag it to Animator Inspector
+
+`Player.cs`
+
+```cs
+// Use this function from Animator
+public void AttackOver()
+{
+    isAttacking = false;
+}
+```
+
+`PlayerAnimEvents.cs`
+
+```cs
+void Start()
+{
+    player = GetComponentInParent<Player>();
+}
+
+private void AnimationTrigger()
+{
+    player.AttackOver();
+}
+```
+
+- Animation window
+  - playerAttack1
+    - Select the created event at 0:6
+      - Inspector
+        - Function: PlayerAnimEvents/Methods/AnimationTrigger()
+
 ### Attack combo
+
+#### Combo Counter
+
+```cs
+public void AttackOver()
+{
+    isAttacking = false;
+    comboCounter++;
+    if (comboCounter > 2) comboCounter = 0;
+}
+```
+
+- Animation window
+  - playerAttack2 and playerAttack3
+    - last frame
+      - Add Event
+        - Inspector
+          - Function: PlayerAnimEvents/Methods/AnimationTrigger()
+
+`Player.cs`
+
+```cs
+[SerializeField] private float comboTime;
+private float comboTimeWindow;v
+
+void update()
+{
+    ...
+    comboTimeWindow -= Time.deltaTime;
+    ...
+}
+
+private void CheckInput()
+{
+    ...
+    if (Input.GetKeyDown(KeyCode.Mouse0))
+    {
+        if (!isGrounded) return;
+
+        if (comboTimeWindow < 0) comboCounter = 0;
+
+        isAttacking = true;
+        comboTimeWindow = comboTime;
+    }
+}
+```
 
 ### Inheritance
 
